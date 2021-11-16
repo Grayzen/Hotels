@@ -26,11 +26,15 @@
                     Search
                     <form action="{{ route('hotels.index') }}" method="GET" class="mt-2">
                         <select name="address" id="address">
-                            <option value="">Choose City</option>
-                            <option value="Ankara" @if (session('city') == 'Ankara') selected @endif>Ankara</option>
-                            <option value="Istanbul" @if (session('city') == 'Istanbul') selected @endif>Istanbul</option>
-                            <option value="Izmir" @if (session('city') == 'Izmir') selected @endif>Izmir</option>
-                            <option value="Mersin" @if (session('city') == 'Mersin') selected @endif>Mersin</option>
+                            @if (count($cities) > 0)
+                                <option value="">Choose City</option>
+                                @foreach ($cities as $city)
+                                    <option value="{{ $city }}" @if (session('city') == $city) selected @endif>{{ $city }}
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="">No City Record</option>
+                            @endif
                         </select>
                         <x-input type="date" name="starting_at" class="ml-2" placeholder="Starting Date"
                             value="{{ session('starting_at') ? session('starting_at') : '' }}" />
@@ -39,56 +43,55 @@
                         <x-button type="submit" class="ml-2">Search</x-button>
                     </form>
                 </div>
-                <div class="p-6 bg-white border-b border-gray-200">
+                <div class="p-6 bg-white border-b border-gray-200 grid grid-cols-3 gap-4">
                     @forelse ($hotels as $key => $hotel)
                         <a href="{{ route('hotels.show', $hotel->id) }}">
-                            <div class="mx-auto flex">
-                                <div class=" items-stretch grid grid-cols-3 gap-4">
-                                    <div class="flex-1 p-4">
-                                        <div class="block bg-white overflow-hidden border-2 h-full">
-                                            <div class="p-4">
-                                                <h3 class="mt-2 mb-2 font-bold text-sm">
-                                                    {{ $hotel->name }}
-                                                </h3>
-                                                <img src="images/{{ $hotel->image }}" alt="" width="200px">
-                                                <div class="mt-2 flex flex-wrap">
-                                                    {{ $hotel->address }}
-                                                </div>
-                                                <div class="pt-3 text-md text-justify flex flex-wrap break-normal">
-                                                    {{ $hotel->desc }}
-                                                </div>
-                                                <div class="pt-3 text-md text-justify">
-                                                    @for ($i = 0; $i < $hotel->stars; $i++)
-                                                        <div class="clip-star"></div>
-                                                    @endfor
-                                                </div>
-                                            </div>
-                                            @if (count($hotelRoomsLeft))
-                                                <div class="pl-4 pb-3 flex flex-wrap items-center">
-                                                    @if ($hotelRoomsLeft[$key] < 15)
-                                                        <x-label for="rooms_left"
-                                                            value="Rooms Left: {{ $hotelRoomsLeft[$key] }}"
-                                                            class="text-red-400" />
-                                                    @else
-                                                        <x-label for="rooms_left"
-                                                            value="Rooms Left: {{ $hotelRoomsLeft[$key] }}"
-                                                            class="text-green-500" />
-                                                    @endif
-                                                </div>
-                                            @endif
-                                            <div class="pl-4 pb-3 flex flex-wrap items-center">
-                                                <x-label for="price" value="Room Price: {{ $hotel->room_price }}$" />
-                                            </div>
-                                            @isset($hotel->try_price)
-                                                <div class="pl-4 pb-3 flex flex-wrap items-center">
-                                                    <x-label for="try_price"
-                                                        value="Room Price TRY: {{ number_format($hotel->try_price) }}₺" />
-                                                </div>
-                                            @endisset
-                                        </div>
+                            {{-- <div class="mx-auto flex"> --}}
+                            {{-- <div class="items-stretch"> --}}
+                            {{-- <div class="flex-1 p-4"> --}}
+                            <div class="block bg-white overflow-hidden border-2 h-full">
+                                <div class="p-4">
+                                    <h3 class="mt-2 mb-2 font-bold text-sm">
+                                        {{ $hotel->name }}
+                                    </h3>
+                                    <img src="images/{{ $hotel->image }}" alt="" width="200px"
+                                        class="w-auto">
+                                    <div class="mt-2 flex flex-wrap">
+                                        {{ $hotel->address }}
+                                    </div>
+                                    <div class="pt-3 text-md text-justify flex flex-wrap break-normal">
+                                        {{ $hotel->desc }}
+                                    </div>
+                                    <div class="pt-3 text-md text-justify">
+                                        @for ($i = 0; $i < $hotel->stars; $i++)
+                                            <div class="clip-star"></div>
+                                        @endfor
                                     </div>
                                 </div>
+                                @if (count($hotelRoomsLeft))
+                                    <div class="pl-4 pb-3 flex flex-wrap items-center">
+                                        @if ($hotelRoomsLeft[$key] < 15)
+                                            <x-label for="rooms_left" value="Rooms Left: {{ $hotelRoomsLeft[$key] }}"
+                                                class="text-red-400" />
+                                        @else
+                                            <x-label for="rooms_left" value="Rooms Left: {{ $hotelRoomsLeft[$key] }}"
+                                                class="text-green-500" />
+                                        @endif
+                                    </div>
+                                @endif
+                                <div class="pl-4 pb-3 flex flex-wrap items-center">
+                                    <x-label for="price" value="Room Price: {{ $hotel->room_price }}$" />
+                                </div>
+                                @isset($hotel->try_price)
+                                    <div class="pl-4 pb-3 flex flex-wrap items-center">
+                                        <x-label for="try_price"
+                                            value="Room Price TRY: {{ number_format($hotel->try_price) }}₺" />
+                                    </div>
+                                @endisset
                             </div>
+                            {{-- </div> --}}
+                            {{-- </div> --}}
+                            {{-- </div> --}}
                         </a>
                     @empty
                         Please search for City and Dates.

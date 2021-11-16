@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Hotel;
 use Illuminate\Http\Request;
 use AmrShawky\LaravelCurrency\Facade\Currency;
+use Carbon\CarbonPeriod;
 // use AmrShawky\Currency;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Auth;
@@ -24,20 +25,28 @@ class HotelController extends Controller
         // Filtreleme ve son seçimlerin kalması
         if (isset($request->starting_at, $request->ending_at)) {
             $hotels = Hotel::filter()->get();
+            // Kalan oda sayısını bulma
             foreach ($hotels as $key => $hotel) {
                 $hotelRentedRooms = DB::table('user_hotel')
                     ->where('hotel_id', $hotel->id)
-                    ->where('starting_at', '<', $request->starting_at)
-                    ->where('ending_at', '>', $request->ending_at)
+                    ->where(function ($query) {
+                        $query
+                            ->where('starting_at', '<=', request()->starting_at)
+                            ->where('ending_at', '>=', request()->starting_at)
+                            ->orWhere('starting_at', '<', request()->ending_at)
+                            ->where('ending_at', '>=', request()->ending_at)
+                            ->orWhere('starting_at', '>=', request()->starting_at)
+                            ->where('ending_at', '<', request()->ending_at);
+                    })
                     ->count();
                 $hotelRoomsLeft[] = $hotel->total_rooms - $hotelRentedRooms;
             }
+            // dd($hotelRoomsLeft);
             session()->put('city', $request->address);
             session()->put('starting_at', $request->starting_at);
             session()->put('ending_at', $request->ending_at);
-            // dd($hotelRoomsLeft);
         } else
-            $hotels = [];
+            $hotels = Hotel::all();
 
 
         $curl = curl_init();
@@ -76,7 +85,10 @@ class HotelController extends Controller
         // dd($response->result);
         // }
 
-        return view('hotels.index', compact('hotels', 'hotelRoomsLeft'));
+        // Sadece kayıtlı olan illeri çekiyoruz
+        $cities = Hotel::select('address')->orderBy('address', 'asc')->groupBy('address')->pluck('address');
+
+        return view('hotels.index', compact('hotels', 'cities', 'hotelRoomsLeft'));
     }
 
     /**
@@ -165,11 +177,17 @@ class HotelController extends Controller
         // }
         $hotel['try_price'] = $response->result;
 
-        // Kalan oda sayısını gösterme
+        // Kalan oda sayısını bulma
         $hotelRentedRooms = DB::table('user_hotel')
             ->where('hotel_id', $hotel->id)
-            ->where('starting_at', '<', session('starting_at'))
-            ->where('ending_at', '>', session('ending_at'))
+            ->where(function ($query) {
+                $query->where('starting_at', '<=', session('starting_at'))
+                    ->where('ending_at', '>=', session('starting_at'))
+                    ->orWhere('starting_at', '<', session('ending_at'))
+                    ->where('ending_at', '>=', session('ending_at'))
+                    ->orWhere('starting_at', '>=', session('starting_at'))
+                    ->where('ending_at', '<', session('ending_at'));
+            })
             ->count();
         $hotelRoomsLeft = $hotel->total_rooms - $hotelRentedRooms;
 
@@ -217,11 +235,6 @@ class HotelController extends Controller
 
     public function rent(Request $request)
     {
-        $request->validate([
-            'starting_at' => 'required|date',
-            'ending_at' => 'required|date'
-        ]);
-
         // Oda kalmadıysa hata mesajı
         if ($request->hotelRoomsLeft < 1)
             return redirect()->back()->with('status', 'Sorry, No Rooms Left');

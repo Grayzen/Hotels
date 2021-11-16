@@ -29,8 +29,8 @@
                         <x-label for="name" :value="__('Name')" />
                         <x-input type="text" name="name" placeholder="Hotel Name" />
                         <br>
-                        <x-label for="address" :value="__('Address')" class="mt-4" />
-                        <x-input type="text" name="address" placeholder="Hotel Address" />
+                        <x-label for="address" :value="__('City')" class="mt-4" />
+                        <x-input type="text" name="address" placeholder="Hotel City" />
                         <br>
                         <x-label for="total_rooms" :value="__('Total Rooms')" class="mt-4" />
                         <x-input type="text" name="total_rooms" placeholder="Total Rooms" />

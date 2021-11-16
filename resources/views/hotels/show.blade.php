@@ -41,12 +41,14 @@
                                                     @endfor
                                                 </div>
                                                 <div class="pt-3 text-md text-justify">
-                                                    <input type="date" name="starting_at"
-                                                        value="{{ session('starting_at') }}" required disabled>
+                                                    <input type="date" value="{{ session('starting_at') }}" disabled>
+                                                    <input type="hidden" name="starting_at"
+                                                        value="{{ session('starting_at') }}">
                                                 </div>
                                                 <div class="pt-3 text-md text-justify">
-                                                    <input type="date" name="ending_at"
-                                                        value="{{ session('ending_at') }}" required disabled>
+                                                    <input type="date" value="{{ session('ending_at') }}" disabled>
+                                                    <input type="hidden" name="ending_at"
+                                                        value="{{ session('ending_at') }}">
                                                 </div>
                                             </div>
                                             <div class="pl-4 pb-3 flex flex-wrap items-center">
@@ -60,6 +62,8 @@
                                                     <x-label for="rooms_left"
                                                         value="Rooms Left: {{ $hotelRoomsLeft }}"
                                                         class="text-green-500" />
+                                                    <input type="hidden" name="hotelRoomsLeft"
+                                                        value="{{ $hotelRoomsLeft }}">
                                                 @endif
                                             </div>
                                             <div class="pl-4 pb-3 flex flex-wrap items-center">
