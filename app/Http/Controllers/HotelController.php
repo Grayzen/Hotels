@@ -144,6 +144,9 @@ class HotelController extends Controller
      */
     public function show(Hotel $hotel)
     {
+        if (!session('starting_at') and !session('ending_at'))
+            return redirect()->back()->with('status', 'Please choose dates for reservation');
+
         $curl = curl_init();
         // Seçilen otelin dolar kurunu türk lirasına çevirme
         curl_setopt_array($curl, [

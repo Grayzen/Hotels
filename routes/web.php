@@ -19,7 +19,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('hotels.index');
 })->middleware(['auth'])->name('dashboard');
 
 Route::resource('hotels', HotelController::class)->middleware(['auth']);

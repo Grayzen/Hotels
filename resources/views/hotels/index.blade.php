@@ -23,7 +23,7 @@
 
                     <!-- Validation Errors -->
                     <x-auth-validation-errors class="mb-4" :errors="$errors" />
-                    Search
+                    Search Filter as City and Dates
                     <form action="{{ route('hotels.index') }}" method="GET" class="mt-2">
                         <select name="address" id="address">
                             @if (count($cities) > 0)
